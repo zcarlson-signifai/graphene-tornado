@@ -18,7 +18,6 @@ from graphql import get_operation_ast
 from graphql import OperationType
 from graphql import parse
 from graphql import validate
-from graphql.error import GraphQLFormattedError  as format_graphql_error
 from graphql.error.graphql_error import GraphQLError
 from graphql.error.syntax_error import GraphQLSyntaxError
 from graphql.execution.execute import ExecutionResult
@@ -447,7 +446,7 @@ class TornadoGraphQLHandler(web.RequestHandler):
         if isinstance(exception, ExecutionError):
             return [{"message": e} for e in exception.errors]
         elif isinstance(exception, GraphQLError):
-            return [format_graphql_error(exception)]
+            return [exception.formatted]
         elif isinstance(exception, web.HTTPError):
             return [{"message": exception.log_message}]
         else:
@@ -456,6 +455,6 @@ class TornadoGraphQLHandler(web.RequestHandler):
     @staticmethod
     def format_error(error: Union[GraphQLError, GraphQLSyntaxError]) -> Dict[str, Any]:
         if isinstance(error, GraphQLError):
-            return format_graphql_error(error)
+            return error.formatted
 
         return {"message": str(error)}
